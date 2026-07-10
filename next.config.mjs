@@ -8,7 +8,7 @@ const nextConfig = {
     unoptimized: true, // Required for static export in Next.js
   },
   // Set the base path to the GitHub repository name in production
-  basePath: isProd ? '/channel-war-map' : '',
+  basePath: isProd ? '/sales-channel-map' : '',
 };
 
 export default nextConfig;
