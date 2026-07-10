@@ -32,13 +32,6 @@ export default function RootLayout({
           <nav className="flex-1 p-4 space-y-1">
             <Link 
               href="/"
-              className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 text-slate-300 hover:text-white animate-pulse border border-indigo-500/10 bg-indigo-500/5 hover:bg-slate-800"
-            >
-              <span>📋</span>
-              <span>需求與架構文件</span>
-            </Link>
-            <Link 
-              href="/dashboard"
               className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 text-slate-300 hover:text-white"
             >
               <span>📊</span>
@@ -57,6 +50,13 @@ export default function RootLayout({
             >
               <span>🏪</span>
               <span>通路清單管理</span>
+            </Link>
+            <Link 
+              href="/docs"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 text-slate-300 hover:text-white animate-pulse border border-indigo-500/10 bg-indigo-500/5 hover:bg-slate-800"
+            >
+              <span>📋</span>
+              <span>需求與架構文件</span>
             </Link>
           </nav>
 

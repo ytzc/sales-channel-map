@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🗺️ 通路戰情地圖系統 — 產品規格與需求說明</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.4s ease forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+  <div class="max-w-6xl mx-auto px-4 py-12 space-y-8">
+    
+    <!-- Hero Header -->
+    <div class="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-900 rounded-2xl p-8 md:p-12 text-white shadow-xl relative overflow-hidden border border-indigo-500/20">
+      <div class="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-indigo-500 rounded-full opacity-10 blur-3xl"></div>
+      <div class="absolute bottom-0 left-0 -mb-12 -ml-12 w-48 h-48 bg-emerald-500 rounded-full opacity-5 blur-3xl"></div>
+      
+      <div class="relative z-10 space-y-6">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold border border-indigo-500/30">
+          <svg class="w-3.5 h-3.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>純靜態開箱即用版 (Pure Static PRD)</span>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
+          🗺️ 通路戰情地圖系統
+        </h1>
+        <p class="text-slate-300 text-sm md:text-lg max-w-3xl leading-relaxed">
+          本系統將實體通路運營的四大維度：**位置**、**庫存**、**效期**、**客情（拜訪與叫貨）**高度整合，以地圖視覺化為核心，解決「資訊孤島」、「過期損耗」與「巡店效率低」等痛點。
+        </p>
+        <div class="flex flex-wrap gap-4 pt-2">
+          <span class="px-3 py-1.5 rounded-lg bg-white/10 text-xs font-medium text-slate-200 border border-white/10 flex items-center space-x-2">
+            <span>📅</span><span>今日基準日：2026年7月10日</span>
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-xs font-medium text-emerald-300 border border-emerald-500/30 flex items-center space-x-2">
+            <span>✓</span><span>無編譯依賴 (Static HTML)</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Control Buttons -->
+    <div class="flex border-b border-slate-200 bg-white p-1 rounded-xl shadow-sm sticky top-4 z-20">
+      <button onclick="switchTab('general', this)" class="tab-btn flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>專案目的 & 核心價值</span>
+      </button>
+      <button onclick="switchTab('layers', this)" class="tab-btn flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <span>四大戰術地圖圖層</span>
+      </button>
+      <button onclick="switchTab('schema', this)" class="tab-btn flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+        <span>資料欄位 & 模型</span>
+      </button>
+      <button onclick="switchTab('tech', this)" class="tab-btn flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <span>架構評估 & 未來規劃</span>
+      </button>
+    </div>
+
+    <!-- ==================== TAB CONTENT: GENERAL ==================== -->
+    <div id="general" class="tab-content active animate-fadeIn space-y-8">
+      
+      <!-- Core Value Proposition Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Box 1 -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:border-indigo-100 transition-all space-y-4">
+          <h2 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+            <span class="p-2 bg-indigo-50 text-indigo-600 rounded-xl">🎯</span>
+            <span>專案目的與核心痛點</span>
+          </h2>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            傳統藥局、診所等實體通路管理缺乏整合。本系統以「地圖」為載體，將營運指標與地理位置相結合，避免資訊孤島，提升決策效率。
+          </p>
+          <div class="grid grid-cols-2 gap-4 pt-2">
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+              <span class="text-3xl">⚡</span>
+              <h4 class="font-bold text-sm text-slate-800 mt-2">提升巡店人效</h4>
+              <p class="text-[11px] text-slate-500 mt-1">規劃最優路線，告別盲目拜訪</p>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+              <span class="text-3xl">📉</span>
+              <h4 class="font-bold text-sm text-slate-800 mt-2">降低效期損耗</h4>
+              <p class="text-[11px] text-slate-500 mt-1">臨期商品預警，提早調轉下架</p>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+              <span class="text-3xl">🔥</span>
+              <h4 class="font-bold text-sm text-slate-800 mt-2">減少客群流失</h4>
+              <p class="text-[11px] text-slate-500 mt-1">自動偵測並召回失溫通路</p>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+              <span class="text-3xl">🌱</span>
+              <h4 class="font-bold text-sm text-slate-800 mt-2">潛力新點開發</h4>
+              <p class="text-[11px] text-slate-500 mt-1">系統化搜集並追蹤待開發點</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Box 2 -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:border-indigo-100 transition-all space-y-4">
+          <h2 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+            <span class="p-2 bg-emerald-50 text-emerald-600 rounded-xl">📊</span>
+            <span>核心儀表板 KPI 指標</span>
+          </h2>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            系統首頁將即時運算並呈現以下六大關鍵營運指標，作為業務人員與主管的每日工作起點：
+          </p>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div class="flex items-center space-x-3">
+                <span class="text-lg">🏢</span>
+                <span class="text-xs font-bold text-slate-700">總合作通路數</span>
+              </div>
+              <span class="text-[10px] text-slate-500 bg-indigo-50 text-indigo-700 px-2 py-1 rounded">活躍合作點</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div class="flex items-center space-x-3">
+                <span class="text-lg">🌱</span>
+                <span class="text-xs font-bold text-slate-700">待開發通路數</span>
+              </div>
+              <span class="text-[10px] text-slate-500 bg-emerald-50 text-emerald-700 px-2 py-1 rounded">未簽約潛力點</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div class="flex items-center space-x-3">
+                <span class="text-lg">⏳</span>
+                <span class="text-xs font-bold text-slate-700">快過期通路數</span>
+              </div>
+              <span class="text-[10px] text-slate-500 bg-rose-50 text-rose-700 px-2 py-1 rounded">效期少於 6 個月</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div class="flex items-center space-x-3">
+                <span class="text-lg">📦</span>
+                <span class="text-xs font-bold text-slate-700">缺貨通路數</span>
+              </div>
+              <span class="text-[10px] text-slate-500 bg-amber-50 text-amber-700 px-2 py-1 rounded">在庫量 = 0</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div class="flex items-center space-x-3">
+                <span class="text-lg">❄️</span>
+                <span class="text-xs font-bold text-slate-700">失溫通路數</span>
+              </div>
+              <span class="text-[10px] text-slate-500 bg-purple-50 text-purple-700 px-2 py-1 rounded">超 90 天未叫貨</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- User Personas Card -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center space-x-2">
+          <span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">👥</span>
+          <span>兩大主要使用者與關注痛點</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Persona 1 -->
+          <div class="p-5 rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-indigo-50/20 relative">
+            <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2.5 py-1 rounded-full">第一線業務</span>
+            <div class="flex items-center space-x-2 mb-3">
+              <span class="text-2xl">🧑‍💼</span>
+              <h4 class="font-bold text-slate-900">業務代表 (Sales Representative)</h4>
+            </div>
+            <ul class="space-y-3.5 text-xs text-slate-600 mt-4">
+              <li class="flex items-start space-x-2">
+                <span class="text-indigo-500 mt-0.5">🔹</span>
+                <span><strong>巡店效率優化</strong>：不需盲目拜訪，地圖一秒顯示今天最急需補貨或排查效期的店家。</span>
+              </li>
+              <li class="flex items-start space-x-2">
+                <span class="text-indigo-500 mt-0.5">🔹</span>
+                <span><strong>即時客情登錄</strong>：巡店完畢可用平板或手機立即提交拜訪紀錄與下一次待辦。</span>
+              </li>
+              <li class="flex items-start space-x-2">
+                <span class="text-indigo-500 mt-0.5">🔹</span>
+                <span><strong>零過期目標</strong>：透過警示預先知道 6-12 個月的商品，提早安排行銷促銷或調轉。</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Persona 2 -->
+          <div class="p-5 rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-emerald-50/20 relative">
+            <span class="absolute top-4 right-4 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full">管理層決策</span>
+            <div class="flex items-center space-x-2 mb-3">
+              <span class="text-2xl">👩‍💼</span>
+              <h4 class="font-bold text-slate-900">業務主管 (Sales Manager)</h4>
+            </div>
+            <ul class="space-y-3.5 text-xs text-slate-600 mt-4">
+              <li class="flex items-start space-x-2">
+                <span class="text-emerald-500 mt-0.5">🔹</span>
+                <span><strong>區域業績地圖</strong>：迅速分析台北市各行政區（如大安區、信義區）的通路密度與業績。</span>
+              </li>
+              <li class="flex items-start space-x-2">
+                <span class="text-emerald-500 mt-0.5">🔹</span>
+                <span><strong>客情溫度控管</strong>：自動統計流失（失溫）通路比率，評估業務巡店頻率與客情健全度。</span>
+              </li>
+              <li class="flex items-start space-x-2">
+                <span class="text-emerald-500 mt-0.5">🔹</span>
+                <span><strong>潛力分級打分</strong>：自動劃分 A/B/C 等級客戶，針對 A 級大戶提供 VIP 級保護。</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB CONTENT: LAYERS ==================== -->
+    <div id="layers" class="tab-content animate-fadeIn space-y-8">
+      
+      <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 flex items-center space-x-3 text-indigo-900">
+        <span class="text-2xl">💡</span>
+        <p class="text-xs leading-relaxed font-medium">
+          系統核心是以地圖標記 (Marker) 為載體，切換不同的戰術圖層，地圖點顏色依以下商業規則動態變更：
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Layer 1 -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+              <span class="text-xl">🏪</span>
+              <span>1. 營運通路狀態圖層 (基礎)</span>
+            </h3>
+            <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">合作進度</span>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed">
+            顯示通路當前的商業往來關係與開發進度，適用於通路盤點：
+          </p>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="flex items-center space-x-2.5 p-2 bg-slate-50 rounded-lg border border-slate-100">
+              <span class="w-3.5 h-3.5 rounded-full bg-blue-500 inline-block shadow"></span>
+              <span class="text-xs text-slate-700 font-bold">🔵 合作通路</span>
+            </div>
+            <div class="flex items-center space-x-2.5 p-2 bg-slate-50 rounded-lg border border-slate-100">
+              <span class="w-3.5 h-3.5 rounded-full bg-yellow-500 inline-block shadow"></span>
+              <span class="text-xs text-slate-700 font-bold">🟡 洽談中</span>
+            </div>
+            <div class="flex items-center space-x-2.5 p-2 bg-slate-50 rounded-lg border border-slate-100">
+              <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block shadow"></span>
+              <span class="text-xs text-slate-700 font-bold">🟢 待開發</span>
+            </div>
+            <div class="flex items-center space-x-2.5 p-2 bg-slate-50 rounded-lg border border-slate-100">
+              <span class="w-3.5 h-3.5 rounded-full bg-rose-500 inline-block shadow"></span>
+              <span class="text-xs text-slate-700 font-bold">🔴 終止合作</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 2 -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+              <span class="text-xl">📦</span>
+              <span>2. 庫存分析圖層 (補貨地圖)</span>
+            </h3>
+            <span class="text-[10px] bg-amber-50 text-amber-600 border border-amber-200/50 px-2 py-0.5 rounded-full font-semibold font-mono">STOCK_STATUS</span>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed">
+            系統比對「在庫總數」與「安全水位」之差值，即時生成補貨通知：
+          </p>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between p-2.5 bg-emerald-50/40 rounded-xl border border-emerald-100">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                <span class="text-xs text-slate-700 font-bold">🟢 庫存正常</span>
+              </div>
+              <span class="text-[10px] text-slate-500">庫存量 &ge; 安全水位</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-yellow-50/40 rounded-xl border border-yellow-100">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                <span class="text-xs text-slate-700 font-bold">🟡 低於安全水位</span>
+              </div>
+              <span class="text-[10px] text-slate-500">庫存量 &lt; 安全水位</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-rose-50/40 rounded-xl border border-rose-100">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-rose-600 inline-block"></span>
+                <span class="text-xs text-slate-700 font-bold">🔴 緊急缺貨</span>
+              </div>
+              <span class="text-[10px] text-rose-600 font-bold">在庫量 = 0 (最優先安排拜訪)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 3 -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+              <span class="text-xl">⏳</span>
+              <span>3. 效期追蹤圖層 (防損地圖)</span>
+            </h3>
+            <span class="text-[10px] bg-rose-50 text-rose-600 border border-rose-200/50 px-2 py-0.5 rounded-full font-semibold font-mono">EXPIRY_STATUS</span>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed">
+            追蹤通路中所有庫存商品「最快到期日」之剩餘效期，進行防過期處理：
+          </p>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between p-2.5 bg-emerald-50/40 rounded-xl border border-emerald-100">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                <span class="text-xs text-slate-700 font-bold">🟢 安全</span>
+              </div>
+              <span class="text-[10px] text-slate-500">剩餘效期 &gt; 12 個月</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-yellow-50/40 rounded-xl border border-yellow-100">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                <span class="text-xs text-slate-700 font-bold">🟡 臨期警告</span>
+              </div>
+              <span class="text-[10px] text-slate-500 font-medium">剩餘效期 6 ~ 12 個月</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-rose-50/40 rounded-xl border border-rose-100">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-rose-600 inline-block"></span>
+                <span class="text-xs text-slate-700 font-bold">🔴 急迫過期</span>
+              </div>
+              <span class="text-[10px] text-rose-600 font-bold">剩餘效期 &lt; 6 個月 (立即調配或回收)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 4 -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+              <span class="text-xl">❄️</span>
+              <span>4. 叫貨頻率圖層 (客戶溫度地圖)</span>
+            </h3>
+            <span class="text-[10px] bg-purple-50 text-purple-600 border border-purple-200/50 px-2 py-0.5 rounded-full font-semibold font-mono">ORDER_TEMP</span>
+          </div>
+          <p class="text-slate-500 text-xs leading-relaxed">
+            依據店家「最後一次叫貨日」與今天相差之天數，研判客情溫度，防止流失：
+          </p>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                <span class="text-slate-700 font-bold">🟢 正常</span>
+              </div>
+              <span class="text-[11px] text-slate-500 font-semibold">0 ~ 30 天</span>
+            </div>
+            <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+                <span class="text-slate-700 font-bold">🔵 關注</span>
+              </div>
+              <span class="text-[11px] text-slate-500 font-semibold">31 ~ 60 天</span>
+            </div>
+            <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                <span class="text-slate-700 font-bold">🟡 警示</span>
+              </div>
+              <span class="text-[11px] text-slate-500 font-semibold">61 ~ 90 天</span>
+            </div>
+            <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-purple-600 inline-block"></span>
+                <span class="text-slate-700 font-bold">🟣 失溫</span>
+              </div>
+              <span class="text-[11px] text-purple-600 font-bold">90 天以上 (極高危急)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Level Scoring Card -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+            <span class="p-1 bg-indigo-50 text-indigo-600 rounded-lg">📈</span>
+            <span>通路潛力分級評分機制 (A / B / C 級)</span>
+          </h3>
+          <span class="text-[11px] bg-slate-100 px-3 py-1 rounded-full text-slate-500 font-semibold">系統權重自動運算</span>
+        </div>
+        <p class="text-slate-600 text-xs leading-relaxed mb-4">
+          系統整合**月銷售額**、**年成長率**、**叫貨頻率**與**庫存商品品項數**，自動進行權重評分，並在戰術地圖上將潛力客戶標示分級：
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/30">
+            <h4 class="font-bold text-amber-800 text-sm flex items-center space-x-1.5">
+              <span>🏆</span><span>A 級通路</span>
+            </h4>
+            <p class="text-[11px] text-slate-500 mt-2">高銷售、高成長、高叫貨頻率的「明星客戶」。業務經理應列為 VIP 巡檢對象，確保競品無法入侵。</p>
+          </div>
+          <div class="p-4 rounded-xl border border-indigo-200 bg-indigo-50/20">
+            <h4 class="font-bold text-indigo-800 text-sm flex items-center space-x-1.5">
+              <span>🥈</span><span>B 級通路</span>
+            </h4>
+            <p class="text-[11px] text-slate-500 mt-2">銷售穩定、回購週期固定的「主力客戶」。提供標準客情維護，維持健康庫存與固定巡迴拜訪。</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-100/30">
+            <h4 class="font-bold text-slate-700 text-sm flex items-center space-x-1.5">
+              <span>🥉</span><span>C 級通路</span>
+            </h4>
+            <p class="text-[11px] text-slate-500 mt-2">低銷售、低活躍或新成立的「潛在開發點」。建議降低拜訪頻率改以電話客服代替，節省人力成本。</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB CONTENT: SCHEMA ==================== -->
+    <div id="schema" class="tab-content animate-fadeIn space-y-8">
+      
+      <!-- channels table schema -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-5 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+              <span>1. 通路主表資料庫結構 (`channels`)</span>
+            </h3>
+            <p class="text-[11px] text-slate-500 mt-1">儲存通路的基本基本資料、經緯度坐標、潛力等級與負責業務員</p>
+          </div>
+          <span class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded font-mono font-semibold self-start">PostgreSQL</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100/60 border-b border-slate-200 text-slate-600 font-semibold">
+                <th class="p-4 w-1/4">欄位名稱 (Column)</th>
+                <th class="p-4 w-1/5">型別 (Type)</th>
+                <th class="p-4 w-1/5">資料範例</th>
+                <th class="p-4">欄位說明</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">id</td>
+                <td class="p-4 font-mono text-slate-400">UUID (Primary Key)</td>
+                <td class="p-4">ch-01 (自動生成)</td>
+                <td class="p-4 text-slate-500">唯一識別代碼</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">name</td>
+                <td class="p-4 font-mono text-slate-400">VARCHAR</td>
+                <td class="p-4">健康人生藥局 (大安店)</td>
+                <td class="p-4 text-slate-500">通路實體註冊名稱</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">type</td>
+                <td class="p-4 font-mono text-slate-400">VARCHAR</td>
+                <td class="p-4">partner / negotiating / prospect</td>
+                <td class="p-4 text-slate-500">通路屬性（合作 / 洽談 / 待開發），驅動地圖狀態圖層</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">potential_level</td>
+                <td class="p-4 font-mono text-slate-400">VARCHAR</td>
+                <td class="p-4">A / B / C</td>
+                <td class="p-4 text-slate-500">通路評估潛力級別</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">address</td>
+                <td class="p-4 font-mono text-slate-400">VARCHAR</td>
+                <td class="p-4">台北市大安區信義路三段 150 號</td>
+                <td class="p-4 text-slate-500">地址資訊</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">latitude</td>
+                <td class="p-4 font-mono text-slate-400">DECIMAL</td>
+                <td class="p-4">25.0335</td>
+                <td class="p-4 text-slate-500">地圖定位緯度坐標</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">longitude</td>
+                <td class="p-4 font-mono text-slate-400">DECIMAL</td>
+                <td class="p-4">121.5432</td>
+                <td class="p-4 text-slate-500">地圖定位經度坐標</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">contact_person</td>
+                <td class="p-4 font-mono text-slate-400">VARCHAR</td>
+                <td class="p-4">張大明</td>
+                <td class="p-4 text-slate-500">通路負責人、採購或藥師聯絡人</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">phone</td>
+                <td class="p-4 font-mono text-slate-400">VARCHAR</td>
+                <td class="p-4">02-2700-1234</td>
+                <td class="p-4 text-slate-500">聯絡電話</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">owner_sales</td>
+                <td class="p-4 font-mono text-slate-400">VARCHAR</td>
+                <td class="p-4">Jerry Chen</td>
+                <td class="p-4 text-slate-500">指定維護此通路的業務代表</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">cooperate_start_date</td>
+                <td class="p-4 font-mono text-slate-400">DATE</td>
+                <td class="p-4">2024-01-15</td>
+                <td class="p-4 text-slate-500">合作正式開始日期</td>
+              </tr>
+              <tr>
+                <td class="p-4 font-mono font-semibold text-indigo-600">remarks</td>
+                <td class="p-4 font-mono text-slate-400">TEXT</td>
+                <td class="p-4">大安區指標型藥局，客流量大</td>
+                <td class="p-4 text-slate-500">客情備份與備註</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Inventory Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden space-y-4">
+          <div class="p-4 border-b border-slate-100 bg-slate-50">
+            <h3 class="font-bold text-slate-900 flex items-center space-x-2 text-sm">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+              <span>2. 庫存與品項表 (`inventory_items`)</span>
+            </h3>
+          </div>
+          <div class="overflow-x-auto px-4 pb-4">
+            <table class="w-full text-left text-[11px] text-slate-700">
+              <thead class="bg-slate-100/50 border-b border-slate-200 text-slate-500 font-semibold">
+                <tr>
+                  <th class="p-3">欄位</th>
+                  <th class="p-3">型別</th>
+                  <th class="p-3">描述</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">id</td>
+                  <td class="p-3 font-mono text-slate-400">UUID (PK)</td>
+                  <td class="p-3 text-slate-500">唯一代碼</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">channel_id</td>
+                  <td class="p-3 font-mono text-slate-400">UUID (FK)</td>
+                  <td class="p-3 text-slate-500">關聯至 `channels.id`</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">product_name</td>
+                  <td class="p-3 font-mono text-slate-400">VARCHAR</td>
+                  <td class="p-3 text-slate-500">商品品項名稱</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">current_stock</td>
+                  <td class="p-3 font-mono text-slate-400">INTEGER</td>
+                  <td class="p-3 text-slate-500">目前店家在庫庫存</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">safety_stock</td>
+                  <td class="p-3 font-mono text-slate-400">INTEGER</td>
+                  <td class="p-3 text-slate-500">安全庫存警戒基準</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">expiry_date</td>
+                  <td class="p-3 font-mono text-slate-400">DATE</td>
+                  <td class="p-3 text-slate-500">到期日，驅動效期警告</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Visit Records Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden space-y-4">
+          <div class="p-4 border-b border-slate-100 bg-slate-50">
+            <h3 class="font-bold text-slate-900 flex items-center space-x-2 text-sm">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>3. 業務拜訪紀錄表 (`visit_records`)</span>
+            </h3>
+          </div>
+          <div class="overflow-x-auto px-4 pb-4">
+            <table class="w-full text-left text-[11px] text-slate-700">
+              <thead class="bg-slate-100/50 border-b border-slate-200 text-slate-500 font-semibold">
+                <tr>
+                  <th class="p-3">欄位</th>
+                  <th class="p-3">型別</th>
+                  <th class="p-3">描述</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">id</td>
+                  <td class="p-3 font-mono text-slate-400">UUID (PK)</td>
+                  <td class="p-3 text-slate-500">唯一代碼</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">channel_id</td>
+                  <td class="p-3 font-mono text-slate-400">UUID (FK)</td>
+                  <td class="p-3 text-slate-500">關聯至 `channels.id`</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">visit_date</td>
+                  <td class="p-3 font-mono text-slate-400">DATE</td>
+                  <td class="p-3 text-slate-500">進行實地拜訪日期</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">visitor</td>
+                  <td class="p-3 font-mono text-slate-400">VARCHAR</td>
+                  <td class="p-3 text-slate-500">拜訪人業務姓名</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">purpose</td>
+                  <td class="p-3 font-mono text-slate-400">VARCHAR</td>
+                  <td class="p-3 text-slate-500">拜訪主旨 (如: 調換、客情)</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono font-semibold text-indigo-600">notes</td>
+                  <td class="p-3 font-mono text-slate-400">TEXT</td>
+                  <td class="p-3 text-slate-500">拜訪內容備忘與客情摘要</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB CONTENT: TECH ==================== -->
+    <div id="tech" class="tab-content animate-fadeIn space-y-8">
+      
+      <!-- Tech stack evaluation -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-5">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+          <span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">🛠️</span>
+          <span>一、 技術架構選擇評估與工程建議</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-5 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
+              <span>⚡</span><span>Next.js 14 (App Router)</span>
+            </h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              具有高擴充性的 React 首選框架。透過其靜態導出 (Static HTML Export) 功能，可完美相容於 GitHub Pages 等純靜態伺服器；未來可平滑升級為 Node.js 動態 Server 生態。
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
+              <span>🔋</span><span>Supabase (PostgreSQL)</span>
+            </h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              業界首創的 Serverless PostgreSQL。其內建的 Row-Level Security (RLS) 權限防禦機制，能直接滿足「業務僅能看自轄通路、主管能看全局」的資料安全性要求。
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
+              <span>🌍</span><span>Mapbox GL JS</span>
+            </h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              基於 Web-GL 的高效地圖引擎。在台北市載入數千個通路標記點時，能維持每秒 60 影格流暢縮放不卡頓。自訂顏色主題極其精美，適合戰情大螢幕呈現。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roadmap Timeline -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+          <span class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">🚀</span>
+          <span>二、 未來擴充 SaaS 之階段路徑 (Roadmap)</span>
+        </h3>
+        
+        <div class="relative border-l border-slate-200 ml-4 pl-8 space-y-8">
+          
+          <!-- Phase 1 -->
+          <div class="relative">
+            <span class="absolute -left-12 top-1.5 w-8 h-8 rounded-full bg-emerald-500 border-4 border-emerald-100 flex items-center justify-center text-white text-xs font-bold">1</span>
+            <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h4 class="font-bold text-slate-900 text-sm">階段一：產品概念驗證 MVP (當前靜態純網頁)</h4>
+                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/50">已就緒 (開箱即測)</span>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                全網頁以純靜態 HTML/CSS + Mock Data 高模擬展現四大圖層與拜訪紀錄。免去跟公司舊 ERP 或雲端資料庫串接之繁瑣手續，提供業務代表和主管最直覺的操作試用與改進依歸。
+              </p>
+            </div>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="relative">
+            <span class="absolute -left-12 top-1.5 w-8 h-8 rounded-full bg-indigo-600 border-4 border-indigo-100 flex items-center justify-center text-white text-xs font-bold">2</span>
+            <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h4 class="font-bold text-slate-900 text-sm">階段二：Supabase 串接與第一線定位打卡</h4>
+                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200/50">第二階段 TODO</span>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                對接 Supabase 雲端即時 PostgreSQL 資料庫，將新增通路、新拜訪資料直接保存。導入 Supabase Auth，第一線業務可利用手機 GPS 於抵達店家時進行經緯度比對「到店簽到打卡」。
+              </p>
+            </div>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="relative">
+            <span class="absolute -left-12 top-1.5 w-8 h-8 rounded-full bg-slate-400 border-4 border-slate-100 flex items-center justify-center text-white text-xs font-bold">3</span>
+            <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h4 class="font-bold text-slate-900 text-sm">階段三：多租戶 (SaaS) 與自動化通知擴展</h4>
+                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">長期規劃</span>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                在資料庫底層設計 `tenant_id`，實現多品牌藥廠獨立註冊之 SaaS 機制。整合 LINE Notify、Slack 等通訊軟體 Webhook，若偵測到通路急迫缺貨或效期亮紅燈，即時推播發送補貨催單提示給負責人。
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    function switchTab(tabId, btn) {
+      // Hide all contents
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.remove('active'));
+
+      // Deactivate all buttons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(button => {
+        button.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+        button.classList.add('text-slate-600', 'hover:bg-slate-50', 'hover:text-slate-900');
+      });
+
+      // Show selected content
+      document.getElementById(tabId).classList.add('active');
+
+      // Activate selected button
+      btn.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+      btn.classList.remove('text-slate-600', 'hover:bg-slate-50', 'hover:text-slate-900');
+    }
+  </script>
+</body>
+</html>
